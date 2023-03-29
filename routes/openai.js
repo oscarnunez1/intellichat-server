@@ -6,7 +6,6 @@ import { openai } from "../index.js"
 dotenv.config()
 const router = express.Router()
 
-
 router.post("/text", async (req, res) => {
   try {
     const { text, activeChatId } = req.body
@@ -33,8 +32,6 @@ router.post("/text", async (req, res) => {
       }
     )
 
-    console.log("RESPONSE FROM JOHNNY", response.data.choices[0].text)
-
     res.status(200).json({ text: response.data.choices[0].text })
   } catch (error) {
     console.log("error", error)
@@ -47,15 +44,16 @@ router.post("/code", async (req, res) => {
     const { text, activeChatId } = req.body
     
     const response = await openai.createCompletion({
-      model: "code-davinci-003",
+      model: "code-davinci-002",
       prompt: text, 
       temperature: 0.5,
       max_tokens: 2048,
       top_p: 1,
       frequency_penalty: 0.5,
-      presence_penalty: 0
+      presence_penalty: 0,
     })
 
+  
     await axios.post(
       `https://api.chatengine.io/chats/${activeChatId}/messages/`,
       { text: response.data.choices[0].text },
@@ -68,11 +66,9 @@ router.post("/code", async (req, res) => {
       }
     )
 
-    console.log("RESPONSE FROM JOHNNY", response.data.choices[0].text)
-
     res.status(200).json({ text: response.data.choices[0].text })
   } catch (error) {
-    console.log("error", error)
+    console.log("error", error.response.data.error)
     res.status(500).json({ error: error.message }) 
   }
 })
